@@ -56,3 +56,37 @@
     (if (empty? remaining)
       (lazy-seq ret)
       (recur (deep-rest remaining) (conj ret (deep-first remaining))))))
+
+(defn filter-upper
+  "Takes in a string and returns only the upper case letters of
+   the string."
+  [^String s] (transduce (filter #(and (>= (long %) (long \A)) (<= (long %) (long \Z)))) str s))
+
+(defn max-clone [& args] (reduce #(if (> %1 %2) %1 %2) args))
+
+(defn interleave-clone [coll1 coll2] (reduce concat (map vector coll1 coll2)))
+
+(defn interpose-clone [value coll]
+  (butlast (interleave coll (repeat (count coll) value))))
+
+(defn drop-nth "Drop every nth item in coll."
+  [coll n] (apply concat (map (partial take (dec n)) (partition-all n coll))))
+
+(defn factorial [n] (loop [ret (if (zero? n) 1 n)
+                           cur (dec n)]
+                      (if (pos? cur)
+                        (recur (* ret cur) (dec cur))
+                        ret)))
+
+(defn rev-interleave
+  "Reverses the interleave process into x number of subsequences."
+  [coll n]
+  (for [i (range n)] (take-nth n (drop i coll))))
+
+(defn rotate-seq
+  "Rotates a sequence in either direction (positive->left, negative->right).
+  Returns a lazy-sequence.
+  Ex: (rotate-seq 2 [1 2 3 4 5]) => '(3 4 5 1 2)
+      (rotate-seq -4 '(:a :b :c)) => '(:c :a :b)"
+  [n coll]
+  (apply concat (rseq (split-at (mod n (count coll)) coll))))
