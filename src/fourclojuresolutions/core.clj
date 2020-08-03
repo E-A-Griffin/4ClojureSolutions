@@ -90,3 +90,23 @@
       (rotate-seq -4 '(:a :b :c)) => '(:c :a :b)"
   [n coll]
   (apply concat (rseq (split-at (mod n (count coll)) coll))))
+
+(defn set-clone?
+  "Takes in a collection coll and returns true if
+   the coll is a set and false otherwise."
+  [coll]
+  (if (= (count coll) 0)
+    (= (conj coll 0) (conj (conj coll 0) 0))
+    (= coll (conj coll (first coll)))))
+
+(defn get-coll-type [coll]
+  (let [first-token [(gensym) (gensym)]
+        second-token [(gensym) (gensym)]
+        conjd-coll (conj (conj coll first-token) second-token)]
+    ;; Check if first-token is inserted twice
+    (if (= (count conjd-coll) (count (conj conjd-coll first-token)))
+      ;; Check if vector of two elements is treated like a key-value pair
+      ;; (hence implying coll is a map)
+      (if (= (count (conj coll [1 1])) (count (conj (conj coll [1 1]) [1 0])))
+        :map :set)
+      (if (= (last conjd-coll) second-token) :vector :list))))
