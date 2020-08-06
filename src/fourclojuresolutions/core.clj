@@ -110,3 +110,36 @@
       (if (= (count (conj coll [1 1])) (count (conj (conj coll [1 1]) [1 0])))
         :map :set)
       (if (= (last conjd-coll) second-token) :vector :list))))
+
+(defn comp-clone
+  [& fns]
+  (loop [rem-fns (butlast fns)
+         compd-fns (fn [& args] (apply (last fns) args))]
+    (if (empty? rem-fns)
+      compd-fns
+      (recur (butlast rem-fns) (fn [& args] ((last rem-fns) (apply compd-fns args)))))))
+
+(defn juxt-clone
+  [& fns]
+  (fn [& args]
+    (map #(apply % args) fns)))
+
+(defn reductions-clone
+  ([f coll]
+   (lazy-seq
+    (if-let [sec (second coll)]
+      (cons (first coll)
+            (reductions-clone f (cons (f (first coll) sec) (drop 2 coll))))
+      coll)))
+  ([f init coll]
+   (lazy-seq
+    (reductions-clone f (cons init coll)))))
+
+(defn zipmap-clone
+  [ks vs]
+  (reduce conj (map #(array-map %1 %2) ks vs)))
+
+(defn iterate-clone
+  ([f init]
+   (lazy-seq
+    (cons init (iterate-clone f (f init))))))
