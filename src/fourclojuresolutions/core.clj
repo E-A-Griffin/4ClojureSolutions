@@ -143,3 +143,12 @@
   ([f init]
    (lazy-seq
     (cons init (iterate-clone f (f init))))))
+
+(defn merge-two-with [f m1 m2]
+  (conj m1 (into {} (for [[k2 v2] m2]
+                      (if-let [[k1 v1] (find m1 k2)]
+                        [k1 (f v1 v2)]
+                        [k2 v2])))))
+
+(defn merge-with-clone [f m1 & rest-ms]
+  (reduce (partial merge-two-with f) m1 rest-ms))
