@@ -152,3 +152,11 @@
 
 (defn merge-with-clone [f m1 & rest-ms]
   (reduce (partial merge-two-with f) m1 rest-ms))
+
+(defn nil-key?
+  "Given a key and map, returns true iff the map contains an entry with that
+   key and its value is nil"
+  [k m]
+  (and
+   (contains? m k)
+   (nil? (k m))))
